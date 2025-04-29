@@ -37,6 +37,7 @@ func (r *VaccineRecord) GetStudentVaccinationRecord(filter string, pagination re
 		}
 		return insertionDetails, r.DB.Table("students s").
 			Select("s.id AS id, s.name, s.class, s.roll_number,s.gender,s.phone_no, v.drive_id as drive_id").
+			Order("id ASC").
 			Joins("LEFT JOIN vaccination_records v ON s.id = v.student_id").
 			Limit(pagination.Limit).
 			Offset(pagination.Offset).
@@ -51,6 +52,7 @@ func (r *VaccineRecord) GetStudentVaccinationRecord(filter string, pagination re
 	}
 	return insertionDetails, r.DB.Table("students s").
 		Select("s.id AS id, s.name, s.class, s.roll_number,s.gender,s.phone_no, v.drive_id as drive_id").
+		Order("id ASC").
 		Joins("LEFT JOIN vaccination_records v ON s.id = v.student_id").
 		Where(filter).
 		Limit(pagination.Limit).

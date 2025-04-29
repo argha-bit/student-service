@@ -82,12 +82,16 @@ func (b *BulkUploadRepository) GetBulkUploads(requestId string, pagination reque
 	result := []models.BulkUploadModel{}
 	var err error
 	if requestId == "" {
+		log.Println("fetching bulkupload status requestes with no requestId")
 		err = b.DB.Table("bulk_upload_jobs").
+			Order("id ASC").
 			Limit(pagination.Limit).
 			Offset(pagination.Offset).
 			Find(&result).Error
 	} else {
+		log.Println("fetching bulkupload status requestes with requestId", requestId)
 		err = b.DB.Table("bulk_upload_jobs").
+			Order("id ASC").
 			Where("request_id =?", requestId).
 			Limit(pagination.Limit).
 			Offset(pagination.Offset).
@@ -99,15 +103,14 @@ func (b *BulkUploadRepository) GetBulkUploadCounts(requestId string, pagination 
 	var result int
 	var err error
 	if requestId == "" {
+		log.Println("fetching bulkupload status request count with no requestId")
 		err = b.DB.Table("bulk_upload_jobs").
-			Limit(pagination.Limit).
-			Offset(pagination.Offset).
 			Count(&result).Error
 	} else {
+		log.Println("fetching bulkupload status request count with no requestId")
+
 		err = b.DB.Table("bulk_upload_jobs").
 			Where("request_id = ?", requestId).
-			Limit(pagination.Limit).
-			Offset(pagination.Offset).
 			Count(&result).Error
 	}
 	return result, err

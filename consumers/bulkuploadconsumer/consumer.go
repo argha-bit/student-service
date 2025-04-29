@@ -37,6 +37,7 @@ func (b *BulkUploadConsumer) SubscribeToBulkUploadQueue(queueName string) {
 			j.Ack(false)
 		case bulkuploadcontroller.BULK_VACCINE_RECORD:
 			go b.BulkuploadUc.ProcessBulkVaccineRecord(data)
+			j.Ack(false)
 		default:
 			log.Println("Unknown Request Type")
 		}

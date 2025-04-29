@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"student-service/models"
@@ -76,7 +77,7 @@ func verifyDriveExists(id int, name string) ([]VaccineDriveGetResponse, error) {
 	if name == "" {
 		reqUrl = fmt.Sprintf("%s/vaccine/drives/%d", os.Getenv("VACCINE_SERVICE"), id)
 	} else {
-		reqUrl = fmt.Sprintf("%s/vaccine/drives?vaccine_name=%s", os.Getenv("VACCINE_SERVICE"), name)
+		reqUrl = fmt.Sprintf("%s/vaccine/drives?vaccine_name=%s", os.Getenv("VACCINE_SERVICE"), url.QueryEscape(name))
 	}
 	log.Println("Resource Being Requested at", reqUrl)
 	code, resp, err := utils.MakeAPICall(http.MethodGet, reqUrl, map[string]string{
