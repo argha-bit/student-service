@@ -31,12 +31,12 @@ func (r *VaccineRecord) GetStudentVaccinationRecord(filter string, pagination re
 	if filter == "" {
 		if pagination.Limit == 0 {
 			return insertionDetails, r.DB.Table("students s").
-				Select("s.id AS id, s.name, s.class, s.roll_number,s.gender,s.phone_no, v.drive_id as drive_id").
+				Select("s.id AS id, s.name, s.class, s.roll_number as roll_number,s.gender,s.phone_no, v.drive_id as drive_id").
 				Joins("LEFT JOIN vaccination_records v ON s.id = v.student_id").
 				Find(&insertionDetails).Error
 		}
 		return insertionDetails, r.DB.Table("students s").
-			Select("s.id AS id, s.name, s.class, s.roll_number,s.gender,s.phone_no, v.drive_id as drive_id").
+			Select("s.id AS id, s.name, s.class, s.roll_number as roll_number,s.gender,s.phone_no, v.drive_id as drive_id").
 			Order("id ASC").
 			Joins("LEFT JOIN vaccination_records v ON s.id = v.student_id").
 			Limit(pagination.Limit).
@@ -45,13 +45,13 @@ func (r *VaccineRecord) GetStudentVaccinationRecord(filter string, pagination re
 	}
 	if pagination.Limit == 0 {
 		return insertionDetails, r.DB.Table("students s").
-			Select("s.id AS id, s.name, s.class, s.roll_number,s.gender,s.phone_no, v.drive_id as drive_id").
+			Select("s.id AS id, s.name, s.class, s.roll_number as roll_number,s.gender,s.phone_no, v.drive_id as drive_id").
 			Joins("LEFT JOIN vaccination_records v ON s.id = v.student_id").
 			Where(filter).
 			Find(&insertionDetails).Error
 	}
 	return insertionDetails, r.DB.Table("students s").
-		Select("s.id AS id, s.name, s.class, s.roll_number,s.gender,s.phone_no, v.drive_id as drive_id").
+		Select("s.id AS id, s.name, s.class, s.roll_number as roll_number,s.gender,s.phone_no, v.drive_id as drive_id").
 		Order("id ASC").
 		Joins("LEFT JOIN vaccination_records v ON s.id = v.student_id").
 		Where(filter).

@@ -15,11 +15,11 @@ type VaccineInsertionRecord struct {
 }
 
 type StudentVaccinationDetail struct {
-	Id      int    `json:"id"`
-	Name    string `json:"name"`
-	Class   string `json:"class"`
-	Gender  string `json:"gender"`
-	RollNo  string `json:"roll_number"`
-	PhoneNo string `json:"phone_no"`
-	DriveId int    `json:"drive_id"`
+	Id         int    `json:"id"`
+	Name       string `json:"name"`
+	Class      string `json:"class"`
+	Gender     string `json:"gender"`
+	RollNumber string `json:"roll_number"`
+	PhoneNo    string `json:"phone_no"`
+	DriveId    int    `json:"drive_id"`
 }

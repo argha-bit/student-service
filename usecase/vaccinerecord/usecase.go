@@ -161,7 +161,7 @@ func (v *VaccineRecordUsecase) GenerateVaccinationReport(request *requests.Gener
 		studentDetail.Name = j.Name
 		studentDetail.Gender = j.Gender
 		studentDetail.Class = j.Class
-		studentDetail.RollNo = j.RollNo
+		studentDetail.RollNo = j.RollNumber
 		studentDetail.PhoneNo = j.PhoneNo
 		if j.DriveId == 0 {
 			studentDetail.Vaccination = false
@@ -315,7 +315,7 @@ func (v *VaccineRecordUsecase) GetStudentVaccinationRecords(request *requests.Ge
 		studentDetail.Name = j.Name
 		studentDetail.Gender = j.Gender
 		studentDetail.Class = j.Class
-		studentDetail.RollNo = j.RollNo
+		studentDetail.RollNo = j.RollNumber
 		studentDetail.PhoneNo = j.PhoneNo
 		if j.DriveId == 0 {
 			studentDetail.Vaccination = false
