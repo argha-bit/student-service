@@ -187,7 +187,7 @@ func (b *BulkUploadRequestUsecase) ProcessBulkStudentRecord(model *models.BulkUp
 		return nil
 	}
 	log.Println("Report File Uploaded", reportFileName)
-	model.FilePath = fmt.Sprintf("http://%s:%s/%s", os.Getenv("MINIO_SERVER"), os.Getenv("MINIO_PORT"), uploadedReportFile)
+	model.FilePath = fmt.Sprintf("http://%s:%s/%s/%s", os.Getenv("MINIO_SERVER"), os.Getenv("MINIO_PORT"), os.Getenv("MINIO_BULK_UPLOAD_BUCKET"), uploadedReportFile)
 	//change status
 	model.Status = "PROCESSED"
 	//update db

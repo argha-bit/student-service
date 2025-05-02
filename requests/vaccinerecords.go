@@ -21,6 +21,8 @@ type GetStudentVaccineRecordRequest struct {
 	Id          int    `param:"id"`
 	RollNo      string `query:"roll_no"`
 	VaccineName string `query:"vaccine_name"`
+	Class       string `query:"class" validate:"omitempty,checkValidGradeUpdate"`
+	Name        string `query:"name"`
 	Pagination  Pagination
 }
 

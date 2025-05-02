@@ -154,7 +154,7 @@ func (v *VaccineRecordUsecase) GenerateVaccinationReport(request *requests.Gener
 		log.Println("error fetching vaccination record", err.Error())
 		return "", err
 	}
-	log.Printf("%+v", vaccinationDetails)
+	log.Printf("details fetched %+v", vaccinationDetails)
 	for _, j := range vaccinationDetails {
 		studentDetail := models.GetStudentDetails{}
 		studentDetail.Id = j.Id
@@ -235,31 +235,34 @@ func (v *VaccineRecordUsecase) GetStudentVaccinationRecords(request *requests.Ge
 	driveRegister := make(map[int]VaccineDriveGetResponse)
 
 	joinCondtion := "LEFT JOIN vaccination_records v ON s.id = v.student_id"
+	queryString := ""
 
 	//if id is given
 	if request.Id != 0 {
-		total, err = v.vaccineRecordRepo.GetStudentVaccinationRecordCount(fmt.Sprintf("s.id = '%d'", request.Id), joinCondtion)
-		if err != nil {
-			log.Println("error fetching vaccination record", err.Error())
-			return total, studentDetails, err
+		queryString = fmt.Sprintf("s.id = '%d'", request.Id)
+	}
+	if request.RollNo != "" {
+		if queryString == "" {
+			queryString = fmt.Sprintf("s.roll_number = '%s'", request.RollNo)
+		} else {
+			queryString += " AND " + fmt.Sprintf("s.roll_number = '%s'", request.RollNo)
 		}
-		vaccinationDetails, err = v.vaccineRecordRepo.GetStudentVaccinationRecord(fmt.Sprintf("s.id = '%d'", request.Id), request.Pagination)
-		if err != nil {
-			log.Println("error fetching vaccination record", err.Error())
-			return total, studentDetails, err
+	}
+	if request.Class != "" {
+		if queryString == "" {
+			queryString = fmt.Sprintf("s.class = '%s'", request.Class)
+		} else {
+			queryString += " AND " + fmt.Sprintf("s.class = '%s'", request.Class)
 		}
-	} else if request.RollNo != "" {
-		total, err = v.vaccineRecordRepo.GetStudentVaccinationRecordCount(fmt.Sprintf("s.roll_number = '%s'", request.RollNo), joinCondtion)
-		if err != nil {
-			log.Println("error fetching vaccination record", err.Error())
-			return total, studentDetails, err
+	}
+	if request.Name != "" {
+		if queryString == "" {
+			queryString = fmt.Sprintf("s.name LIKE '%%%s%%'", request.Name)
+		} else {
+			queryString += " AND " + fmt.Sprintf("s.name LIKE '%%%s%%'", request.Name)
 		}
-		vaccinationDetails, err = v.vaccineRecordRepo.GetStudentVaccinationRecord(fmt.Sprintf("s.roll_number = '%s'", request.RollNo), request.Pagination)
-		if err != nil {
-			log.Println("error fetching vaccination record", err.Error())
-			return total, studentDetails, err
-		}
-	} else if request.VaccineName != "" {
+	}
+	if request.VaccineName != "" {
 		//get drive info or id by vaccine name
 		// var driveInfo VaccineDriveResponse
 		drive, err := verifyDriveExists(0, request.VaccineName)
@@ -279,36 +282,30 @@ func (v *VaccineRecordUsecase) GetStudentVaccinationRecords(request *requests.Ge
 			driveIds = append(driveIds, i)
 		}
 		placeholders := make([]string, len(driveIds))
-		fmt.Println(driveIds)
 		for i, id := range driveIds {
 			placeholders[i] = fmt.Sprintf("%d", id)
 		}
 		inClause := strings.Join(placeholders, ", ")
-		fmt.Println(inClause)
 		log.Printf("vaccination_record.drive_id IN (%s)", inClause)
 		//get count
-		total, err = v.vaccineRecordRepo.GetStudentVaccinationRecordCount(fmt.Sprintf("v.drive_id IN (%s)", inClause), joinCondtion)
-		if err != nil {
-			log.Println("error fetching vaccination record", err.Error())
-			return total, studentDetails, err
-		}
-		vaccinationDetails, err = v.vaccineRecordRepo.GetStudentVaccinationRecord(fmt.Sprintf("v.drive_id IN (%s)", inClause), request.Pagination)
-		if err != nil {
-			log.Println("error fetching vaccination record", err.Error())
-			return total, studentDetails, fmt.Errorf("no student vaccinated with vaccine : %s", request.VaccineName)
+		if queryString == "" {
+			queryString = fmt.Sprintf("v.drive_id IN (%s)", inClause)
+		} else {
+			queryString += " AND " + fmt.Sprintf("v.drive_id IN (%s)", inClause)
+
 		}
 		//all record scenario
-	} else {
-		total, err = v.vaccineRecordRepo.GetStudentVaccinationRecordCount("", "LEFT JOIN vaccination_records v ON s.id = v.student_id")
-		if err != nil {
-			log.Println("error fetching vaccination record", err.Error())
-			return total, studentDetails, err
-		}
-		vaccinationDetails, err = v.vaccineRecordRepo.GetStudentVaccinationRecord("", request.Pagination)
-		if err != nil {
-			log.Println("error fetching vaccination record", err.Error())
-			return total, studentDetails, err
-		}
+	}
+	log.Println("query string being used", queryString)
+	total, err = v.vaccineRecordRepo.GetStudentVaccinationRecordCount(queryString, joinCondtion)
+	if err != nil {
+		log.Println("error fetching vaccination record", err.Error())
+		return total, studentDetails, err
+	}
+	vaccinationDetails, err = v.vaccineRecordRepo.GetStudentVaccinationRecord(queryString, request.Pagination)
+	if err != nil {
+		log.Println("error fetching vaccination record", err.Error())
+		return total, studentDetails, err
 	}
 
 	//genrate consolidated Response

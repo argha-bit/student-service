@@ -70,6 +70,7 @@ func (r *VaccineRecord) GetStudentVaccinationRecordCount(filter, join string) (i
 	return insertionDetails, r.DB.Table("students s").
 		Select("s.id AS id, s.name, s.class, s.roll_number,s.gender,s.phone_no, v.drive_id as drive_id").
 		Joins(join).
+		Where(filter).
 		Count(&insertionDetails).Error
 }
 func NewVaccineRecordRepositoryHandler(DB *mysql.MysqlConnect) repository.VaccineRecordRepositoryHandler {
