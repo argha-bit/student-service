@@ -43,13 +43,15 @@ func (v *VaccineRecordUsecase) CreateVaccinationRecords(records *[]models.Vaccin
 	inValidRecords := []models.VaccineInsertionRecord{}
 	for _, j := range *records {
 		//checking if drive exists
-		_, err := verifyDriveExists(j.DriveId, "")
-		if err != nil {
+		driveData, err := verifyDriveExists(j.DriveId, "")
+		log.Println("drive Data ", driveData, err == nil)
+		if err != nil || len(driveData) == 0 {
 			invalid := models.VaccineInsertionRecord{
 				Record:      j,
 				Status:      false,
 				ErrorReason: fmt.Sprintf("no drive exists with drive_id : %d", j.DriveId),
 			}
+			log.Println("invalid due to wrong drive id", invalid)
 			inValidRecords = append(inValidRecords, invalid)
 			continue
 		}
@@ -61,12 +63,14 @@ func (v *VaccineRecordUsecase) CreateVaccinationRecords(records *[]models.Vaccin
 				Status:      false,
 				ErrorReason: fmt.Sprintf("no student exists with student_id : %d", j.StudentId),
 			}
+			log.Println("invalid due to wrong student id", invalid)
 			inValidRecords = append(inValidRecords, invalid)
 			continue
 		}
 		*validRecords = append(*validRecords, j)
 	}
 	//proceed for insertion
+	log.Println("Valid Records", validRecords, "invalidRecords", inValidRecords)
 	resp := v.vaccineRecordRepo.CreateVaccinationRecord(validRecords)
 	return append(resp, inValidRecords...)
 }
@@ -87,6 +91,7 @@ func verifyDriveExists(id int, name string) ([]VaccineDriveGetResponse, error) {
 		log.Println("error in verifying drive api call", err.Error())
 		return []VaccineDriveGetResponse{}, err
 	}
+	log.Println("Response is", code, string(resp), err == nil)
 	if code != http.StatusOK {
 		log.Println("drive doesn't exist", code, string(resp))
 		return []VaccineDriveGetResponse{}, err
