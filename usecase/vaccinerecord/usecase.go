@@ -227,7 +227,11 @@ func (v *VaccineRecordUsecase) GenerateVaccinationReport(request *requests.Gener
 		log.Println("error in uploading file to minio", err.Error())
 		return "", err
 	}
-	filePath := fmt.Sprintf("http://%s:%s/%s/%s", os.Getenv("MINIO_SERVER"), os.Getenv("MINIO_PORT"), os.Getenv("MINIO_BULK_UPLOAD_BUCKET"), uploadedReportFile)
+	host := os.Getenv("MINIO_SERVER")
+	if os.Getenv("APP_LEVEL") == "PROD" {
+		host = os.Getenv("MINIO_URL_PUBLIC")
+	}
+	filePath := fmt.Sprintf("http://%s/%s/%s", host, os.Getenv("MINIO_BULK_UPLOAD_BUCKET"), uploadedReportFile)
 
 	return filePath, nil
 }

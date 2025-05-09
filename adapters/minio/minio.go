@@ -1,7 +1,6 @@
 package minio
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -11,7 +10,10 @@ import (
 
 func GetMinIOClient() (*minio.Client, error) {
 	var err error
-	minioClient, err := minio.New(fmt.Sprintf("%s:%s", os.Getenv("MINIO_SERVER"), os.Getenv("MINIO_PORT")), &minio.Options{
+	server := os.Getenv("MINIO_SERVER")
+
+	log.Println("MinIO is connecting on", server)
+	minioClient, err := minio.New(server, &minio.Options{
 		Creds:  credentials.NewStaticV4(os.Getenv("MINIO_USERNAME"), os.Getenv("MINIO_PASSWORD"), ""),
 		Secure: false, // Set to true for HTTPS
 		Region: os.Getenv("MINIO_REGION"),

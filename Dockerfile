@@ -8,4 +8,5 @@ RUN go build -o ./student-service cmd/main.go
 FROM alpine:latest
 WORKDIR /code
 COPY --from=builder /app/student-service ./student-service
+COPY --from=builder /app/.env .
 ENTRYPOINT ["./student-service"]

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strconv"
 	"student-service/models"
 	"student-service/repository"
@@ -39,6 +40,15 @@ func (b *BulkUploadRequestUsecase) GetBulkUploadDetails(requestId string, pagina
 		log.Println("error in fetching count", err.Error())
 		return count, result, err
 	}
+	if os.Getenv("APP_LEVEL") == "PROD" {
+		log.Println(os.Getenv("MINIO_URL_PUBLIC"))
+		pattern := fmt.Sprintf(`http://.*?/%s`, os.Getenv("MINIO_BULK_UPLOAD_BUCKET"))
+		re := regexp.MustCompile(pattern)
+		for i := 0; i < len(result); i++ {
+			result[i].FilePath = re.ReplaceAllString(result[i].FilePath, fmt.Sprintf("%s/%s", os.Getenv("MINIO_URL_PUBLIC"), os.Getenv("MINIO_BULK_UPLOAD_BUCKET")))
+		}
+	}
+	log.Println("Data Being returned is ", result)
 	return count, result, err
 }
 func (b *BulkUploadRequestUsecase) ProcessBulkStudentRecord(model *models.BulkUploadModel) error {
@@ -187,7 +197,7 @@ func (b *BulkUploadRequestUsecase) ProcessBulkStudentRecord(model *models.BulkUp
 		return nil
 	}
 	log.Println("Report File Uploaded", reportFileName)
-	model.FilePath = fmt.Sprintf("http://%s:%s/%s/%s", os.Getenv("MINIO_SERVER"), os.Getenv("MINIO_PORT"), os.Getenv("MINIO_BULK_UPLOAD_BUCKET"), uploadedReportFile)
+	model.FilePath = fmt.Sprintf("http://%s/%s/%s", os.Getenv("MINIO_SERVER"), os.Getenv("MINIO_BULK_UPLOAD_BUCKET"), uploadedReportFile)
 	//change status
 	model.Status = "PROCESSED"
 	//update db
@@ -349,7 +359,7 @@ func (b *BulkUploadRequestUsecase) ProcessBulkVaccineRecord(model *models.BulkUp
 		return nil
 	}
 	log.Println("Report File Uploaded", reportFileName)
-	model.FilePath = fmt.Sprintf("http://%s:%s/%s/%s", os.Getenv("MINIO_SERVER"), os.Getenv("MINIO_PORT"), os.Getenv("MINIO_BULK_UPLOAD_BUCKET"), uploadedReportFile)
+	model.FilePath = fmt.Sprintf("http://%s/%s/%s", os.Getenv("MINIO_SERVER"), os.Getenv("MINIO_BULK_UPLOAD_BUCKET"), uploadedReportFile)
 	//change status
 	model.Status = "PROCESSED"
 	//update db
